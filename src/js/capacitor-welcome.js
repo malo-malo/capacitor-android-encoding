@@ -60,7 +60,9 @@ window.customElements.define(
         <h1>Capacitor</h1>
       </capacitor-welcome-titlebar>
       <main>
-        <button id="request-trigger">Trigger a multipart/form-data request</button>
+        <button id="request-with-body-trigger">Trigger a request with body</button>
+        <br />
+        <button id="request-with-body-and-request-object-trigger">Trigger a request with body AND request object</button>
       </main>
     </div>
     `;
@@ -68,10 +70,33 @@ window.customElements.define(
 
     connectedCallback() {
       const self = this;
-      self.shadowRoot.querySelector("#request-trigger").addEventListener("click", self.stubRequest);
+      self.shadowRoot.querySelector("#request-with-body-trigger").addEventListener("click", self.stubRequestWithBody);
+      self.shadowRoot.querySelector("#request-with-body-and-request-object-trigger")
+        .addEventListener("click", self.stubRequestWithBodyAndRequestObject);
     }
 
-    stubRequest() {
+    stubRequestWithBody() {
+      fetch(
+        "https://example.com",
+        {
+          method: "POST",
+          body: JSON.stringify({ key: "value" }) // This works fine on android
+        }
+      );
+    }
+
+    stubRequestWithBodyAndRequestObject() {
+      const request = new Request(
+        "https://example.com",
+        {
+          method: "POST",
+          body: JSON.stringify({ key: "value" }) // This is ignored on android
+        }
+      );
+      fetch(request);
+    }
+
+    stubMultipartRequest() {
       const formData = new FormData();
       formData.set("should_encode", "Hé");
       fetch(
